@@ -15,12 +15,12 @@ def check(V, E):
     """
 
     m = E.shape[1]            # dim = m - 1
-    G = np.ones((m, m))       # shape matrix
+    G = np.zeros((m-1, m-1))  # shape matrix
     D = np.zeros(E.shape[0])  # determinants
 
     print(f'Checking {m-1}D mesh')
     for j, el in enumerate(E):
-        G[:, :(m-1)] = V[el, :(m-1)]
+        G[:,:] = V[el[1:],:m-1] - V[el[0],:m-1]
         D[j] = np.linalg.det(G)
 
     Ipos = np.where(D > 0)[0]
@@ -30,22 +30,22 @@ def check(V, E):
 
 
 def test_check():
-    # 3D (neg)
+    # 3D (pos)
     V = np.array([[1, 0, 0],
                   [0, 1, 0],
                   [0, 0, 0],
                   [0, 0, 1]])
     E = np.array([[0, 1, 2, 3]])
     Ipos, Ineg, Izer = check(V, E)
-    assert len(Ipos) == 0
-    assert len(Ineg) == 1
-    assert len(Izer) == 0
-
-    # (pos)
-    E = np.array([[1, 0, 2, 3]])
-    Ipos, Ineg, Izer = check(V, E)
     assert len(Ipos) == 1
     assert len(Ineg) == 0
+    assert len(Izer) == 0
+
+    # (neg)
+    E = np.array([[1, 0, 2, 3]])
+    Ipos, Ineg, Izer = check(V, E)
+    assert len(Ipos) == 0
+    assert len(Ineg) == 1
     assert len(Izer) == 0
 
     # 2D
